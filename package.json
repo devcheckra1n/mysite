@@ -1,0 +1,16 @@
+{
+  "name": "discord-opus-site",
+  "version": "1.0.0",
+  "description": "A site that shows a Discord profile + an Opus player with animated gradient background.",
+  "main": "backend/index.js",
+  "scripts": {
+    "start": "node backend/index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.11.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2"
+  },
+  "author": "Your Name",
+  "license": "MIT"
+}

@@ -1,0 +1,68 @@
+/* ── Entry Screen ─────────────────────────────────────────────────────────── */
+#entry-screen {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FF69B4;
+  font-size: 2rem;
+  z-index: 3;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 1s ease;
+}
+#entry-screen.fade-out {
+  opacity: 0;
+}
+
+/* Reset & full-viewport */
+html, body {
+  margin: 0; padding: 0;
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: black;
+  position: relative;
+  font-family: monospace;
+}
+
+/* Matrix canvas */
+#bg-canvas {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+}
+
+/* Overlay setup form */
+#overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+}
+#setup-form {
+  color: #fff; display: grid; gap: 1rem;
+}
+#setup-form input { font-size:1rem; padding:0.5rem; }
+
+/* Profile */
+.profile {
+  position: absolute; top:50%; left:50%;
+  transform: translate(-50%,-50%);
+  text-align: center; z-index: 1;
+}
+#avatar {
+  width: 150px; height:150px;
+  border-radius:50%; border:4px solid #FF69B4;
+  object-fit: cover;
+}
+.username {
+  margin-top:20px; font-size:2rem; color:#FF69B4;
+  white-space: nowrap;
+}
+.cursor {
+  display:inline-block; margin-left:5px;
+  animation: blinkCursor 1s step-start infinite;
+}
+@keyframes blinkCursor { 0%,50%{opacity:1;}51%,100%{opacity:0;} }

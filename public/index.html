@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Matrix Rain + Profile + Audio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Entry Screen -->
+  <div id="entry-screen">Click to enter</div>
+
+  <!-- Matrix rain -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Profile (hidden until after entry) -->
+  <div class="profile" id="profile" hidden>
+    <!-- Put your avatar image file as public/avatar.png -->
+    <img id="avatar" src="avatar.png" alt="Avatar">
+    <div class="username">
+      <!-- Hard-code your username here -->
+      <span id="username">parisysl</span><span class="cursor">█</span>
+    </div>
+  </div>
+
+  <!-- Hidden background audio -->
+  <audio id="bg-audio" preload="auto" style="display:none"></audio>
+
+  <script src="app.js"></script>
+</body>
+</html>

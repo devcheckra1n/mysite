@@ -5,6 +5,23 @@
   <title># strangled</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
+  <!-- Inline CSS for link icons -->
+  <style>
+    .links {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      justify-content: center;
+    }
+    .links img {
+      width: 40px;
+      height: 40px;
+      transition: transform 0.3s ease;
+    }
+    .links img:hover {
+      transform: scale(1.2) rotate(10deg);
+    }
+  </style>
 </head>
 <body>
   <!-- Entry Screen -->
@@ -13,17 +30,24 @@
   <!-- Matrix rain -->
   <canvas id="bg-canvas"></canvas>
 
-  <!-- Profile (hidden until after entry) -->
+  <!-- Profile (shown after entry) -->
   <div class="profile" id="profile" hidden>
-    <!-- Put your avatar image file as public/avatar.png -->
-    <img id="avatar" src="avatar.png" alt="Avatar">
+    <img id="avatar" src="avatar.png" alt="Avatar" />
     <div class="username">
-      <!-- Hard-code your username here -->
-      <span id="username">parisysl</span><span class="cursor">█</span>
+      <span id="username">YourUsername</span><span class="cursor">█</span>
+    </div>
+    <!-- Link icons under username -->
+    <div class="links">
+      <a href="https://cash.app/$DarePhantom" target="_blank">
+        <img src="assets/cashapp.png" alt="Cash App" />
+      </a>
+      <a href="https://yourbio.example.com" target="_blank">
+        <img src="assets/bioicon.png" alt="Biography" />
+      </a>
     </div>
   </div>
 
-  <!-- Hidden background audio -->
+  <!-- Background audio element (hidden) -->
   <audio id="bg-audio" preload="auto" style="display:none"></audio>
 
   <script src="app.js"></script>

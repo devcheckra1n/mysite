@@ -1,4 +1,4 @@
-# Web Retro (Vercel-ready)
+# Web Retro 
 
 Multi-system browser emulator (NES, SNES, N64, GBA, GB, GBC, NDS) built on **EmulatorJS** (RetroArch cores).  
 **No ROMs are included** — upload your own legally acquired ROM files from your device.
@@ -14,10 +14,6 @@ Multi-system browser emulator (NES, SNES, N64, GBA, GB, GBC, NDS) built on **Emu
 ## Run locally
 Just open `index.html` in any modern browser. (If you hit cross-origin issues for threads, use a static server.)
 
-## Deploy to Vercel
-1. Create a new Git repo with these files.
-2. `vercel` (or deploy via the Vercel dashboard as a **static** project).
-3. Done. `vercel.json` already sets COOP/COEP headers for better performance.
 
 ## Notes
 - This project uses the EmulatorJS CDN for cores and the loader. You can self-host cores by following their docs.

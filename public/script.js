@@ -1,24 +1,24 @@
-// Simple multi-core wrapper using EmulatorJS (CDN).
-// Docs: https://emulatorjs.org/docs/ (options, supported systems, CDN)
+// Clean multi-core wrapper using EmulatorJS (CDN), sandboxed per-run in an iframe.
+// - Switching console => full reset (blank screen, no audio).
+// - GBA defaults to Pixel-Perfect 3x.
+
 const CACHED = {
   core: 'gba',
   file: null,
-  url: null,
-  running: false,
+  url: null
 };
 
-// Base pixel sizes and aspect ratios by console for initial scaling.
 const BASE = {
-  nes:  { w: 256, h: 240, ar: 240/256 },     // ~4:3 display; use square pixels here
+  nes:  { w: 256, h: 240, ar: 240/256 },
   snes: { w: 256, h: 224, ar: 224/256 },
   n64:  { w: 320, h: 240, ar: 240/320 },
-  gba:  { w: 240, h: 160, ar: 160/240 },     // 3:2
+  gba:  { w: 240, h: 160, ar: 160/240 }, // 3:2
   gb:   { w: 160, h: 144, ar: 144/160 },
   gbc:  { w: 160, h: 144, ar: 144/160 },
-  nds:  { w: 256, h: 384, ar: 384/256 },     // stacked screens; varies by layout
+  nds:  { w: 256, h: 384, ar: 384/256 }
 };
 
-const $ = (sel) => document.querySelector(sel);
+const $ = (s)=>document.querySelector(s);
 const stage = $('#stage');
 const romInput = $('#romFile');
 const startBtn = $('#startBtn');
@@ -28,37 +28,73 @@ const pauseBtn = $('#pauseBtn');
 const resumeBtn = $('#resumeBtn');
 const scaleMode = $('#scaleMode');
 
-// Keep CSS custom properties in sync for scale presets.
+let emuFrame = null;
+
+function setScaleClass(name) {
+  stage.classList.remove('orig','pp2','pp3','fit','stretch');
+  stage.classList.add(name);
+}
 function applyBaseDims(core) {
-  const b = BASE[core] || BASE['gba'];
+  const b = BASE[core] || BASE.gba;
   stage.style.setProperty('--base-w', b.w);
   stage.style.setProperty('--base-h', b.h);
   stage.style.setProperty('--ar', String(b.h / b.w));
-  // Default GBA to smaller look (1x); others default to fit
-  if (core === 'gba') {
-    setScaleClass('orig');
+
+  if (core === 'gba') {       // default GBA at 3× pixel-perfect
+    scaleMode.value = 'pp3';
+    setScaleClass('pp3');
   } else {
+    scaleMode.value = 'fit';
     setScaleClass('fit');
   }
 }
-function setScaleClass(name) {
-  stage.classList.remove('orig', 'pp2', 'pp3', 'fit', 'stretch');
-  stage.classList.add(name);
+
+// Hard reset: remove iframe (kills audio/loops) and clear blob.
+function resetEmu() {
+  if (emuFrame) {
+    emuFrame.remove();
+    emuFrame = null;
+  }
+  if (CACHED.url) {
+    try { URL.revokeObjectURL(CACHED.url); } catch {}
+    CACHED.url = null;
+  }
+  pauseBtn.disabled = true;
+  resumeBtn.disabled = true;
+  $('#game').innerHTML = ''; // blank
 }
 
 consoleSel.addEventListener('change', () => {
   CACHED.core = consoleSel.value;
   applyBaseDims(CACHED.core);
+  resetEmu();               // blank and wait for new ROM
+  CACHED.file = null;
+  romInput.value = '';
+  startBtn.disabled = true;
 });
 
 romInput.addEventListener('change', () => {
-  const file = romInput.files?.[0];
-  startBtn.disabled = !file;
-  CACHED.file = file || null;
+  CACHED.file = romInput.files?.[0] || null;
+  startBtn.disabled = !CACHED.file;
 });
 
-scaleMode.addEventListener('change', () => {
-  setScaleClass(scaleMode.value);
+scaleMode.addEventListener('change', () => setScaleClass(scaleMode.value));
+
+pauseBtn.addEventListener('click', () => {
+  const w = emuFrame?.contentWindow;
+  try { w?.EJS_emulator?.togglePause?.(true); } catch {}
+});
+resumeBtn.addEventListener('click', () => {
+  const w = emuFrame?.contentWindow;
+  try { w?.EJS_emulator?.togglePause?.(false); } catch {}
+});
+
+volume.addEventListener('input', () => {
+  const w = emuFrame?.contentWindow;
+  const v = parseFloat(volume.value);
+  try {
+    if (typeof w?.EJS_setVolume === 'function') w.EJS_setVolume(v);
+  } catch {}
 });
 
 startBtn.addEventListener('click', () => {
@@ -66,84 +102,66 @@ startBtn.addEventListener('click', () => {
   launch(CACHED.core, CACHED.file);
 });
 
-pauseBtn.addEventListener('click', () => {
-  // Prefer documented UI: trigger the toolbar's pause if available; else try engine pause event.
-  try {
-    if (window.EJS_emulator && typeof window.EJS_emulator.togglePause === 'function') {
-      window.EJS_emulator.togglePause(true);
-    } else if (window.dispatchEvent) {
-      // Fallback: blur to pause in many cores
-      window.dispatchEvent(new Event('blur'));
-    }
-  } catch {}
-});
-
-resumeBtn.addEventListener('click', () => {
-  try {
-    if (window.EJS_emulator && typeof window.EJS_emulator.togglePause === 'function') {
-      window.EJS_emulator.togglePause(false);
-    } else if (document.hasFocus === 'function') {
-      window.focus();
-    }
-  } catch {}
-});
-
-volume.addEventListener('input', () => {
-  try {
-    // Apply immediately if emulator exposed; else it will be used as default on next launch.
-    if (typeof window.EJS_setVolume === 'function') {
-      window.EJS_setVolume(parseFloat(volume.value));
-    } else {
-      window.EJS_volume = parseFloat(volume.value); // default for next run
-    }
-  } catch {}
-});
-
-function clearOldEmu() {
-  const game = document.getElementById('game');
-  game.innerHTML = ''; // drop old canvas/UI
-  // Remove any previous loader <script> to allow re-init
-  const old = document.querySelector('script[data-ejs-loader]');
-  if (old) old.remove();
-}
-
-// Launch emulator with selected core and ROM file
 function launch(core, file) {
-  clearOldEmu();
-  // revoke previous blob url
-  if (CACHED.url) URL.revokeObjectURL(CACHED.url);
-  const blobUrl = URL.createObjectURL(file);
-  CACHED.url = blobUrl;
+  resetEmu();
 
-  // Configure EmulatorJS globals BEFORE loading loader.js
+  // Make ROM URL
+  CACHED.url = URL.createObjectURL(file);
+
+  // Create a same-origin sandboxed iframe; removing it kills all audio/loops.
+  emuFrame = document.createElement('iframe');
+  emuFrame.className = 'emu-frame';
+  emuFrame.style.width = '100%';
+  emuFrame.style.height = '100%';
+  emuFrame.style.border = '0';
+  emuFrame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-pointer-lock');
+  $('#game').appendChild(emuFrame);
+
+  const cfg = {
+    core,
+    name: file.name,
+    url: CACHED.url,
+    vol: parseFloat(volume.value)
+  };
+
+  const doc = emuFrame.contentDocument;
+  doc.open();
+  doc.write(`<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{height:100%;margin:0;background:#000}#game{width:100%;height:100%}</style>
+</head><body>
+<div id="game"></div>
+<script>
+  // EmulatorJS config lives INSIDE the iframe.
   window.EJS_player = '#game';
-  window.EJS_core = core;            // nes | snes | n64 | gba | gb | gbc | nds | ...
-  window.EJS_gameUrl = blobUrl;      // user-supplied ROM
-  window.EJS_gameName = file.name;
+  window.EJS_core = ${JSON.stringify(cfg.core)};
+  window.EJS_gameUrl = ${JSON.stringify(cfg.url)};
+  window.EJS_gameName = ${JSON.stringify(cfg.name)};
   window.EJS_pathtodata = 'https://cdn.emulatorjs.org/latest/data/';
   window.EJS_startOnLoaded = true;
-  window.EJS_volume = parseFloat(volume.value);
-  // Show toolbar and enable save/load buttons (use defaults if undefined)
-  window.EJS_screenCapture = {}; // leave capture enabled
-  // Example of enabling custom button labels (optional)
-  // window.EJS_screenCapture = { photo: { format: "png", upscale: 1 }, video: { fps: 60 } };
+  window.EJS_volume = ${cfg.vol};
+  window.EJS_ready = function(){ parent.postMessage({type:'EJS_READY'}, '*'); };
+  window.EJS_onGameStart = function(){ parent.postMessage({type:'EJS_START'}, '*'); };
+<\/script>
+<script src="https://cdn.emulatorjs.org/latest/data/loader.js" defer></script>
+</body></html>`);
+  doc.close();
+}
 
-  // Hook useful lifecycle callbacks
-  window.EJS_ready = () => {
-    CACHED.running = true;
+window.addEventListener('message', (e) => {
+  if (!e?.data || typeof e.data.type !== 'string') return;
+  if (e.data.type === 'EJS_READY') {
     pauseBtn.disabled = false;
     resumeBtn.disabled = false;
-  };
-  window.EJS_onGameStart = () => {
-    // Ensure stage class reflects current core
-    applyBaseDims(core);
-  };
+  }
+  if (e.data.type === 'EJS_START') {
+    applyBaseDims(CACHED.core);
+  }
+});
 
-  // Dynamically insert loader
-  const s = document.createElement('script');
-  s.src = 'https://cdn.emulatorjs.org/latest/data/loader.js';
-  s.setAttribute('data-ejs-loader', '1');
-  s.defer = true;
-  document.body.appendChild(s);
-}
+// Initial UI
 applyBaseDims(CACHED.core);
+setScaleClass('pp3'); // GBA default 3×
+startBtn.disabled = true;
+pauseBtn.disabled = true;
+resumeBtn.disabled = true;

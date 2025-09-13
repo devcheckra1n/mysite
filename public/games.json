@@ -1,0 +1,65 @@
+[
+  {
+    "id": "n64-legend-of-zelda-the-majoras-mask",
+    "title": "Legend of Zelda, the - Majora's Mask",
+    "system": "n64",
+    "rom": "roms/Legend of Zelda, The - Majora's Mask (USA).z64",
+    "cover": ""
+  },
+  {
+    "id": "n64-legend-of-zelda-the-ocarina-of-time",
+    "title": "Legend of Zelda, the - Ocarina of Time",
+    "system": "n64",
+    "rom": "roms/Legend of Zelda, The - Ocarina of Time (USA).z64",
+    "cover": ""
+  },
+  {
+    "id": "gba-mario-luigi-superstar-saga",
+    "title": "Mario & Luigi - Superstar Saga",
+    "system": "gba",
+    "rom": "roms/Mario & Luigi - Superstar Saga (USA).gba",
+    "cover": ""
+  },
+  {
+    "id": "nds-new-super-mario-bros",
+    "title": "New Super Mario Bros",
+    "system": "nds",
+    "rom": "roms/New Super Mario Bros. (USA).nds",
+    "cover": ""
+  },
+  {
+    "id": "gbc-pokemon-crystal-version",
+    "title": "Pokemon - Crystal Version",
+    "system": "gbc",
+    "rom": "roms/Pokemon - Crystal Version (USA).gbc",
+    "cover": ""
+  },
+  {
+    "id": "gba-sonic-advance",
+    "title": "Sonic Advance",
+    "system": "gba",
+    "rom": "roms/Sonic Advance (USA) (En,Ja).gba",
+    "cover": ""
+  },
+  {
+    "id": "gba-sonic-advance-2",
+    "title": "Sonic Advance 2",
+    "system": "gba",
+    "rom": "roms/Sonic Advance 2 (USA) (En,Ja,Fr,De,Es,It).gba",
+    "cover": ""
+  },
+  {
+    "id": "gba-sonic-advance-3",
+    "title": "Sonic Advance 3",
+    "system": "gba",
+    "rom": "roms/Sonic Advance 3 (USA) (En,Ja,Fr,De,Es,It).gba",
+    "cover": ""
+  },
+  {
+    "id": "nes-super-mario-bros",
+    "title": "Super Mario Bros",
+    "system": "nes",
+    "rom": "roms/Super Mario Bros (E).nes",
+    "cover": ""
+  }
+]

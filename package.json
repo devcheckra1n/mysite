@@ -1,0 +1,11 @@
+{
+  "name": "web-retro",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node tools/build-games.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

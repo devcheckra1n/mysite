@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Web Retro — Multi-System Emulator</title>
+  <title>Web Retro — Multi‑System Emulator</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -19,7 +19,6 @@
           <option value="gb">Game Boy</option>
           <option value="gbc">Game Boy Color</option>
           <option value="nds">Nintendo DS</option>
-          <!-- Add more supported cores if needed -->
         </select>
       </label>
 
@@ -27,7 +26,6 @@
         <input id="romFile" type="file" accept=".nes,.sfc,.smc,.gba,.gb,.gbc,.n64,.z64,.v64,.nds,.zip" />
         <span>Select ROM</span>
       </label>
-
       <button id="startBtn" disabled>Load & Start</button>
 
       <label>Volume
@@ -38,7 +36,7 @@
         <select id="scaleMode" aria-label="Scale / Aspect">
           <option value="orig">Original (1x)</option>
           <option value="pp2">Pixel-Perfect 2x</option>
-          <option value="pp3">Pixel-Perfect 3x</option>
+          <option value="pp3" selected>Pixel-Perfect 3x</option>
           <option value="fit">Fit (Preserve AR)</option>
           <option value="stretch">Stretch (Fill)</option>
         </select>
@@ -51,20 +49,27 @@
 
   <main>
     <div class="stage-wrap">
-      <div id="stage" class="stage orig">
-        <!-- EmulatorJS will render into this container -->
+      <div id="stage" class="stage pp3">
         <div id="game"></div>
       </div>
     </div>
 
+    <section class="library">
+      <div class="lib-header">
+        <h2>Library</h2>
+        <input id="searchBox" placeholder="Search titles…" />
+        <span class="hint">Click a game to play • ROMs read from <code>/public/roms</code></span>
+      </div>
+      <div id="gameList" class="grid"></div>
+    </section>
+
     <section class="tips">
-      <details open>
-        <summary>How it works</summary>
+      <details>
+        <summary>Notes</summary>
         <ul>
-          <li>This site runs emulators in your browser using WebAssembly via <code>EmulatorJS</code> (RetroArch cores).</li>
-          <li><strong>No ROMs are provided.</strong> Click <em>Select ROM</em> to load your legally acquired ROM from your device.</li>
-          <li>Use the toolbar (appears over the game) for save/load state, screenshots, fullscreen, etc.</li>
-          <li>Settings are saved per game in your browser (IndexedDB). Clearing site data will remove them.</li>
+          <li>Use file picker for ad‑hoc ROMs, or click from the Library to load hosted ROMs.</li>
+          <li>Toolbar over the canvas has save/load state, fullscreen, screenshots, etc.</li>
+          <li><strong>Legal:</strong> Only host ROMs you have the right to distribute. Keep the repo private or use homebrew/public‑domain titles.</li>
         </ul>
       </details>
     </section>
